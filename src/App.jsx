@@ -1,45 +1,81 @@
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 export default function App() {
-  const usernameRef = useRef(null);
-  const passwordRef = useRef(null);
-  const [submittedUser, setSubmittedUser] = useState("");
+  const [products, setProducts] = useState([
+    { id: 1, name: "Laptop", price: 50000 },
+    { id: 2, name: "Mouse", price: 500 }
+  ]);
 
-  function handleSubmit(event) {
+  const [editId, setEditId] = useState(null);
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+
+  function selectProduct(product) {
+    setEditId(product.id);
+    setName(product.name);
+    setPrice(String(product.price));
+  }
+
+  function updateProduct(event) {
     event.preventDefault();
 
-    const username = usernameRef.current.value;
+    setProducts(
+      products.map((product) =>
+        product.id === editId
+          ? {
+              ...product,
+              name: name,
+              price: Number(price)
+            }
+          : product
+      )
+    );
 
-    setSubmittedUser(username);
+    setEditId(null);
+    setName("");
+    setPrice("");
   }
 
   return (
     <div>
-      <h1>Login Form</h1>
+      <h1>Product Management</h1>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Enter Username"
-          ref={usernameRef}
-          required
-        />
-        <br /><br />
+      <h2>Product List</h2>
 
-        <input
-          type="password"
-          placeholder="Enter Password"
-          ref={passwordRef}
-          required
-        />
-        <br /><br />
+      {products.map((product) => (
+        <div key={product.id}>
+          <p>
+            {product.name} - Rs. {product.price}{" "}
+            <button onClick={() => selectProduct(product)}>
+              Edit
+            </button>
+          </p>
+        </div>
+      ))}
 
-        <button type="submit">Login</button>
-      </form>
+      {editId !== null && (
+        <form onSubmit={updateProduct}>
+          <h2>Edit Product</h2>
 
-      {submittedUser && (
-        <h3>Form submitted successfully for: {submittedUser}</h3>
+          <input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            required
+          />
+          <br /><br />
+
+          <input
+            type="number"
+            value={price}
+            onChange={(event) => setPrice(event.target.value)}
+            min="0"
+            required
+          />
+          <br /><br />
+
+          <button type="submit">Update Product</button>
+        </form>
       )}
     </div>
   );
